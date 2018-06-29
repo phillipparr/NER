@@ -1,4 +1,4 @@
-from nerds import SentenceGetter, sent2features
+from nerds import SentenceGetter, sent2features,predict
 import pandas as pd
 
 data = pd.DataFrame([{"Sentence #":"Sentence: 1", "Word": "Mark", "POS": 'NNP', "Tag": "B-per"},
@@ -23,11 +23,18 @@ def test_sentences():
     assert len(sentence) == 7
     assert sentence[0][1] == "Mark"
 
-def sent_word2features():
-    features = [ner.sent2features(s) for s in sentence]
+def test_word2features():
+    features = [sent2features(s) for s in sentence]
     end = len(features[0]) - 1
     assert len(features[0][0]) == 15
     assert len(features[0][1]) == 19
     assert features[0][0]['word.istitle()'] == True
-    assert features[0][0]['postag'] == "B-per"
+    assert features[0][0]['postag'] == "NNP"
     assert features[0][end]['EOS'] == True
+
+def test_predict():
+    sentence_list = ["A lot of people work at Google", "San Francisco is a fun city",
+                     "The Nile is in Africa"]
+    split = sentence_list.split()
+    predictions = predict(sentence_list)
+    assert len(split) == len(predictions)

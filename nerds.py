@@ -3,9 +3,11 @@ from sklearn.model_selection import cross_val_predict
 import eli5
 from sklearn_crfsuite.metrics import flat_classification_report
 from sklearn_crfsuite import CRF
+import nltk
+from nltk.corpus import brown
 
 
-data = pd.read_csv("ner_dataset.csv", encoding="latin1")
+data = pd.read_csv('ner_dataset.csv', encoding="latin1")
 data = data.ffill()
 
 words = list(set(data["Word"].values))
@@ -103,3 +105,15 @@ report = flat_classification_report(y_pred=pred, y_true=y)
 print(report)
 
 print(eli5.show_weights(crf, top=30))
+
+
+def predict(_list):
+    brown_tagged_sents = brown.tagged_sents(categories='news')
+    t0 = nltk.DefaultTagger('NN')
+    unigram_tagger = nltk.UnigramTagger(brown_tagged_sents, backoff=t0)
+    split = [s.split() for s in _list]
+    tag = [unigram_tagger.tag(t) for t in split]
+    features = [sent2features(s) for s in tag]
+    predict = crf.predict(features)
+
+    return predict
